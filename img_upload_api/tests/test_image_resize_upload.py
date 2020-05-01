@@ -9,11 +9,11 @@ import shutil
 from ..models import Images
 from ..serializers import FileSerializer
 
-class FileUpload(APITestCase):
+class Resize_image_upload(APITestCase):
     def setUp(self):
         self.url = reverse('fileupload')
         #Folder for saving test images
-        current_path = os.path.abspath(os.getcwd()).replace('img_upload\\tests', '')
+        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api\\tests', '')
         self.test_pic_folder = current_path + '\\media\\testing_pics'
 
     def generate_image_file(self,name):
@@ -46,7 +46,6 @@ class FileUpload(APITestCase):
 
         response = self.client.post(self.url, data, format='multipart')
         response_data = response.data
-        print(response_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual([response_data['width'],response_data['height']],[150,100])
         #open resized image
@@ -159,6 +158,52 @@ class FileUpload(APITestCase):
         # check resized image
         resized_img = Image.open(self.test_pic_folder + f'\\{file_name}.png')
         self.assertEqual(resized_img.size, (max_width, max_height))
+
+    def test_name_and_ext_image_default(self):
+        """
+        - Test object create success
+        - image_name not inputted set to original image name (test6)
+        - save image extension format (png)
+        - default favorite boolean set to False
+        """
+        file_name = 'test6'
+        img_file = self.generate_image_file(file_name)
+
+        data = {
+            'uploaded_image':img_file
+        }
+        response = self.client.post(self.url,data,format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        #image name set to original file name
+        self.assertEqual(response.data['img_name'],'test6')
+        self.assertEqual(response.data['img_format'],'png')
+        self.assertEqual(response.data['favourite'],False)
+        self.assertEqual(response.data['img_description'],'')
+
+    def test_name_and_ext_image_inputs(self):
+        """
+        - Test object create success
+        - image_name set to ('david)
+        - save image extension format (png)
+        - img_description set to ('abcd')
+        - favourite set to True
+        """
+        file_name = 'test7'
+        img_file = self.generate_image_file(file_name)
+
+        data = {
+            'img_name':'david',
+            'img_description':'abcd',
+            'favourite':True,
+            'uploaded_image':img_file
+        }
+        response = self.client.post(self.url,data,format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        #image name set to original file name
+        self.assertEqual(response.data['img_name'],'david')
+        self.assertEqual(response.data['img_format'],'png')
+        self.assertEqual(response.data['favourite'],True)
+        self.assertEqual(response.data['img_description'],'abcd')
 
     def tearDown(self):
         """
