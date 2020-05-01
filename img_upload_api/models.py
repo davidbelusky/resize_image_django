@@ -1,8 +1,12 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.models import User
 
 from .others.resize_image import Resize_image
 
+def owner_directory_path(instance, filename):
+    # Image upload to media/pics/owner_{owner_id}/
+    return f'pics/owner_{instance.owner.id}/{filename}'
 
 class Images(models.Model):
     img_name = models.CharField(max_length=25,blank=True)
@@ -14,9 +18,10 @@ class Images(models.Model):
         uploaded_image = models.ImageField(blank=False,null=False,upload_to='testing_pics/')
     #Normal run save pics to 'pics/'
     else:
-        uploaded_image = models.ImageField(blank=False, null=False,upload_to='pics/')
+        uploaded_image = models.ImageField(blank=False, null=False,upload_to=owner_directory_path)
     width = models.IntegerField(default=0)
     height = models.IntegerField(default=0)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         """

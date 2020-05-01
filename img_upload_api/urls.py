@@ -1,6 +1,8 @@
-from django.urls import path
-from .views import *
+from django.urls import path,include
+from . import views
 
 urlpatterns = [
-    path('',FileUploadView.as_view(),name='fileupload')
+    path('uploads/',views.FileUploadView.as_view(),name='fileupload'),
+    path('api-auth/register/', views.RegisterUser.as_view(),name='register_user'),
+    path('api-auth/',include('rest_framework.urls')),
 ]

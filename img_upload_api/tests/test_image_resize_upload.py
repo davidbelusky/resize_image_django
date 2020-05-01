@@ -6,11 +6,17 @@ import io
 import os
 import shutil
 
-from ..models import Images
-from ..serializers import FileSerializer
+from django.contrib.auth.models import User
+
 
 class Resize_image_upload(APITestCase):
     def setUp(self):
+        user = User.objects.create_user(username='test_user',
+                                             email='test@test.com',
+                                             password='123456')
+        #Authenticate created test user
+        self.client.force_authenticate(user)
+
         self.url = reverse('fileupload')
         #Folder for saving test images
         current_path = os.path.abspath(os.getcwd()).replace('img_upload_api\\tests', '')
