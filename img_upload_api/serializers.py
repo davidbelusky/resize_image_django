@@ -4,12 +4,31 @@ from .models import Images
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import *
 
-class FileSerializer(serializers.ModelSerializer):
+class ImageSerializer(serializers.ModelSerializer):
     img_format = serializers.ReadOnlyField()
     owner = serializers.ReadOnlyField(source='owner.username')
+
     class Meta:
         model = Images
         fields = '__all__'
+
+class ImageOneSerializer(serializers.ModelSerializer):
+    img_format = serializers.ReadOnlyField()
+    owner = serializers.ReadOnlyField(source='owner.username')
+    uploaded_image = serializers.SerializerMethodField('get_image_url')
+    class Meta:
+        model = Images
+        fields = '__all__'
+
+    def get_image_url(self, obj):
+        """
+        Return absolute path to image
+        """
+        request = self.context.get('request')
+        image_url = obj.uploaded_image.url
+        return request.build_absolute_uri(image_url)
+
+
 
 class UserSerializer(serializers.ModelSerializer):
     #Set style for password '*'
@@ -22,7 +41,7 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_password(self, value):
         """
         Validate password:
-        - length = 5
+        - min length = 5
         - password cannot be common
         - password cannot obtain only numbers
         """

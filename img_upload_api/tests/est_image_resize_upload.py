@@ -2,18 +2,19 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 from PIL import Image
-import io
 import os
 import shutil
 
 from django.contrib.auth.models import User
+from .generate_image import generate_image_file
 
 
-class Resize_image_upload(APITestCase):
+class Test_image_resize_upload(APITestCase):
     def setUp(self):
+        #Create user for authentication
         user = User.objects.create_user(username='test_user',
-                                             email='test@test.com',
-                                             password='123456')
+                                             email='test@email.com',
+                                             password='Test123456')
         #Authenticate created test user
         self.client.force_authenticate(user)
 
@@ -22,18 +23,6 @@ class Resize_image_upload(APITestCase):
         current_path = os.path.abspath(os.getcwd()).replace('img_upload_api\\tests', '')
         self.test_pic_folder = current_path + '\\media\\testing_pics'
 
-    def generate_image_file(self,name):
-        """
-        Create img for testing
-        name: name of img 'test' = test.png
-        return: created img
-        """
-        file = io.BytesIO()
-        image = Image.new('RGBA', size=(150, 100), color=(155, 0, 0))
-        image.save(file, 'png')
-        file.name =  f'{name}.png'
-        file.seek(0)
-        return file
 
     def test_upload_image_without_size(self):
         """
@@ -44,7 +33,7 @@ class Resize_image_upload(APITestCase):
         - Check if uploaded img have same size as inputted
         """
 
-        img_file = self.generate_image_file('test1')
+        img_file = generate_image_file('test1')
 
         data = {
             'uploaded_image': img_file
@@ -67,7 +56,7 @@ class Resize_image_upload(APITestCase):
         """
 
         file_name = 'test2'
-        img_file = self.generate_image_file(file_name)
+        img_file = generate_image_file(file_name)
 
         data = {
             'uploaded_image': img_file,
@@ -91,7 +80,7 @@ class Resize_image_upload(APITestCase):
         """
 
         file_name = 'test3'
-        img_file = self.generate_image_file(file_name)
+        img_file = generate_image_file(file_name)
 
         data = {
             'uploaded_image': img_file,
@@ -117,7 +106,7 @@ class Resize_image_upload(APITestCase):
         input_height = 600
 
         file_name = 'test4'
-        img_file = self.generate_image_file(file_name)
+        img_file = generate_image_file(file_name)
 
         data = {
             'uploaded_image': img_file,
@@ -149,7 +138,7 @@ class Resize_image_upload(APITestCase):
         max_height = 1080
 
         file_name = 'test5'
-        img_file = self.generate_image_file(file_name)
+        img_file = generate_image_file(file_name)
 
         data = {
             'uploaded_image': img_file,
@@ -173,7 +162,7 @@ class Resize_image_upload(APITestCase):
         - default favorite boolean set to False
         """
         file_name = 'test6'
-        img_file = self.generate_image_file(file_name)
+        img_file = generate_image_file(file_name)
 
         data = {
             'uploaded_image':img_file
@@ -195,7 +184,7 @@ class Resize_image_upload(APITestCase):
         - favourite set to True
         """
         file_name = 'test7'
-        img_file = self.generate_image_file(file_name)
+        img_file = generate_image_file(file_name)
 
         data = {
             'img_name':'david',
