@@ -3,6 +3,8 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status,permissions
 from django.contrib.auth.models import User
+import django_filters.rest_framework
+from rest_framework import filters
 
 from .permissions import IsOwner
 from .serializers import ImageSerializer,ImageOneSerializer,UserSerializer
@@ -16,6 +18,16 @@ class ImageUploadView(generics.ListCreateAPIView):
     parser_classes = (MultiPartParser,JSONParser,)
     queryset = Images.objects.all()
     serializer_class = ImageSerializer
+    filter_backends = [filters.SearchFilter,django_filters.rest_framework.DjangoFilterBackend]
+    filterset_fields = {
+            'id':['exact'],
+            'img_name':['iexact'],
+            'img_description':['iexact'],
+            'img_format': ['iexact'],
+            'favourite':['exact'],
+            'created_date':['exact','lte','gte']
+        }
+    search_fields = ['img_name',]
     permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def create(self, request, *args, **kwargs):

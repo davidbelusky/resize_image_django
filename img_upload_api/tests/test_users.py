@@ -81,14 +81,7 @@ class Test_user_login(APITestCase):
         current_path = os.path.abspath(os.getcwd()).replace('img_upload_api\\tests', '')
         self.test_pic_folder = current_path + '\\media\\testing_pics'
 
-    def test_isowner(self):
-        """
-        - upload images for users (user1 = 1 image, user2 = 2 images)
-        - GET return 2 objects for user2
-        - GET return 1 object for user1
-
-        """
-        #Upload 1 image for user1
+        # Upload 1 image for user1
         self.client.force_authenticate(self.user1)
         img_file = generate_image_file('test')
         data = {
@@ -96,8 +89,8 @@ class Test_user_login(APITestCase):
         }
 
         response = self.client.post(self.url, data, format='multipart')
-        self.assertEqual(response.status_code,status.HTTP_201_CREATED)
-        #Upload 2 images for user2
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Upload 2 images for user2
         self.client.force_authenticate(self.user2)
         for upload in range(2):
             img_file = generate_image_file(f'test{upload}')
@@ -105,8 +98,15 @@ class Test_user_login(APITestCase):
                 'uploaded_image': img_file
             }
             response = self.client.post(self.url, data, format='multipart')
-            self.assertEqual(response.status_code,status.HTTP_201_CREATED)
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_isowner(self):
+        """
+        - GET return 2 objects for user2
+        - GET return 1 object for user1
+
+        """
+        #Authenticated user2
         response = self.client.get(self.url, format='json')
         self.assertEqual(response.status_code,status.HTTP_200_OK)
         #Return 2 images for user2
@@ -114,7 +114,7 @@ class Test_user_login(APITestCase):
         for object in response.data:
             self.assertEqual(object['owner'],'user2')
 
-        #authenticate user1
+        #Authenticate user1
         self.client.force_authenticate(self.user1)
         response = self.client.get(self.url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)

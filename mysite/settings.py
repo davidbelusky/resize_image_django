@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django_filters',
     'img_upload_api',
     'rest_framework',
     'django.contrib.admin',
@@ -132,3 +133,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 #Recognize if running test
 TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+
