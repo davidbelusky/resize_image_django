@@ -36,14 +36,21 @@ class ImageUploadView(generics.ListCreateAPIView):
         - if width or height are not filled then set them to default 0
         - width and height must be >= then 0
         """
+        data = request.data
 
-        if 'width' not in request.data or request.data['width'] == '': request.data['width'] = 0
-        if 'height' not in request.data or request.data['height'] == '': request.data['height'] = 0
+        if 'width' not in data or data['width'] == '': data['width'] = 0
+        if 'height' not in data or data['height'] == '': data['height'] = 0
 
-        if int(request.data['width']) < 0 or int(request.data['height']) < 0:
+
+        if int(data['width']) < 0 or int(data['height']) < 0:
+
             return Response({'error':'width and height must be >= 0'})
 
-        data = request.data
+        #'owner' cannot be in 'share_user' field
+        if str(request.user.id) in data.getlist('share_user'):
+            return Response({'error': f'owner {request.user} cannot be inputted also in share_user'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         serializer = ImageSerializer(data=data)
 
         if serializer.is_valid():
@@ -75,3 +82,17 @@ class ImageOneView(generics.RetrieveUpdateDestroyAPIView):
         return {
             'request':self.request
         }
+
+class SharedImagesView(generics.ListAPIView):
+    queryset = Images.objects.all()
+    serializer_class = ImageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+    def get_queryset(self):
+        """
+        - Show only images which are shared with logged user
+        """
+
+        shared_images = self.request.user.shared_user.all()
+        return shared_images

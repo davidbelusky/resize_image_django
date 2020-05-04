@@ -23,17 +23,17 @@ class Images(models.Model):
     width = models.IntegerField(default=0)
     height = models.IntegerField(default=0)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    share_user = models.ManyToManyField(User,related_name='shared_user',blank=True,null=True)
 
     def save(self, *args, **kwargs):
         """
         - If name was not inpputed set default image name
-        - Automatically get image format from img url
+        - If length of name is > 25 characters then set it to first 25 chars
+        - Automatically get image format from img path
         - Resize image before upload to DB
         - Save original size of image to media/pics
-        - Replace original img with resized img
-
+        - Replace original image with resized image
         """
-
         # Get img format ex.(jpg,png...)
         self.img_format = str(self.uploaded_image).split('.')[-1]
         #If img_name = '' set default img file name
