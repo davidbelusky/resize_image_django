@@ -13,7 +13,7 @@ class Images(models.Model):
     img_description = models.TextField(max_length=250,blank=True)
     img_format = models.CharField(max_length=5)
     created_date = models.DateTimeField(auto_now_add=True)
-    favourite = models.BooleanField()
+    favourite = models.BooleanField(default=False)
     #If testing run save tested pics to 'testing_pics/'
     if settings.TESTING:
         uploaded_image = models.ImageField(blank=False,null=False,upload_to='testing_pics/')

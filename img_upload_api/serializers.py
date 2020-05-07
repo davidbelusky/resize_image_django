@@ -4,6 +4,29 @@ from .models import Images
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import *
 
+
+def validate_image_input(data,context):
+    """
+    - if width or height keys are missing set them to default 0
+    - if width or height are not filled then set them to default 0
+    - width and height must be >= then 0
+    - owner cannot be in share users list
+    """
+    request = context['request']
+
+    if 'width' not in data or data['width'] == '': data['width'] = 0
+    if 'height' not in data or data['height'] == '': data['height'] = 0
+
+    if int(data['width']) < 0 or int(data['height']) < 0:
+        raise serializers.ValidationError('width and height must be >= 0')
+    # Owner cannot be in share user list
+    share_user_list_request = request.data.getlist('share_user')
+
+    if str(request.user.id) in share_user_list_request:
+        raise serializers.ValidationError(f"Owner {request.user.id} cannot be in field share_user")
+
+    return data
+
 class ImageSerializer(serializers.ModelSerializer):
     img_format = serializers.ReadOnlyField()
     owner = serializers.ReadOnlyField(source='owner.username')
@@ -11,6 +34,9 @@ class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Images
         fields = '__all__'
+
+    def validate(self, data):
+        return validate_image_input(data,self.context)
 
 class ImageOneSerializer(serializers.ModelSerializer):
     img_format = serializers.ReadOnlyField()
@@ -20,6 +46,9 @@ class ImageOneSerializer(serializers.ModelSerializer):
         model = Images
         fields = '__all__'
 
+    def validate(self, data):
+        return validate_image_input(data, self.context)
+
     def get_image_url(self, obj):
         """
         Return absolute path to image
@@ -27,7 +56,6 @@ class ImageOneSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         image_url = obj.uploaded_image.url
         return request.build_absolute_uri(image_url)
-
 
 
 class UserSerializer(serializers.ModelSerializer):

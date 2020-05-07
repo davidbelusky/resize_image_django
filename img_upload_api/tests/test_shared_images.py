@@ -87,45 +87,20 @@ class SharedImagesTest(APITestCase):
                 self.assertEqual('user1',response.data[0]['owner'])
                 self.assertIn(user.id, response.data[0]['share_user'])
 
-
-    def test_update_share_user(self):
-        """
-        - edit user3 to share img with user1
-        -
-        """
+    def test_update(self):
         self.client.force_authenticate(self.user3)
-        #get user3 image object and convert to dict
-        #data = model_to_dict(Images.objects.get(id=3))
-        data = {
-            'favourite': False,
-            'share_user':[self.user1.id]
-        }
-
-        url_upload_one = self.url_uploads + str(3)
-
-        self.client.put(url_upload_one,data=data,format='json')
-
-        #
-        # self.assertIn(1,response.data['share_user'])
-        #
-        # self.client.force_authenticate(self.user1)
-        # response = self.client.get(self.url_shared,format='json')
-        # #user2 and user3 shared img with user1
-        # self.assertEqual(len(response.data),2)
-        # self.assertEqual(response.data[0]['owner'],'user2')
-        # self.assertEqual(response.data[1]['owner'], 'user3')
-
-
-    def tearDown(self):
-        """
-        Delete folder with testing pictures saved in 'media\testing_pics'
-        """
-
-        shutil.rmtree(self.test_pic_folder)
-
-
-
-
+        data = {'share_user': [1]}
+        url = reverse('fileupload_one',args=(3,))
+        response = self.client.put(url, data, format='multipart')
+        self.assertEqual(response.status_code,status.HTTP_200_OK)
+        #Check if user3 share img with user1
+        self.client.force_authenticate(self.user1)
+        response = self.client.get(self.url_shared,format='json')
+        self.assertEqual(response.status_code,status.HTTP_200_OK)
+        self.assertEqual(len(response.data),2)
+        #user3 and user2 shared images with user1
+        for obj in response.data:
+            self.assertTrue(obj['owner'] == 'user3' or obj['owner'] == 'user2')
 
 
 

@@ -5,6 +5,9 @@ from rest_framework import status,permissions
 from django.contrib.auth.models import User
 import django_filters.rest_framework
 from rest_framework import filters
+from rest_framework.views import APIView
+from django.http import Http404
+
 
 from .permissions import IsOwner
 from .serializers import ImageSerializer,ImageOneSerializer,UserSerializer
@@ -38,20 +41,7 @@ class ImageUploadView(generics.ListCreateAPIView):
         """
         data = request.data
 
-        if 'width' not in data or data['width'] == '': data['width'] = 0
-        if 'height' not in data or data['height'] == '': data['height'] = 0
-
-
-        if int(data['width']) < 0 or int(data['height']) < 0:
-
-            return Response({'error':'width and height must be >= 0'})
-
-        #'owner' cannot be in 'share_user' field
-        if str(request.user.id) in data.getlist('share_user'):
-            return Response({'error': f'owner {request.user} cannot be inputted also in share_user'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = ImageSerializer(data=data)
+        serializer = ImageSerializer(data=data,context={'request':request})
 
         if serializer.is_valid():
             serializer.save(owner=self.request.user)
@@ -83,11 +73,11 @@ class ImageOneView(generics.RetrieveUpdateDestroyAPIView):
             'request':self.request
         }
 
+
 class SharedImagesView(generics.ListAPIView):
     queryset = Images.objects.all()
     serializer_class = ImageSerializer
     permission_classes = [permissions.IsAuthenticated]
-
 
     def get_queryset(self):
         """

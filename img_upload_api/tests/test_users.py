@@ -13,7 +13,6 @@ class Test_register_user(APITestCase):
         self.url = reverse('register_user')
         self.url_uploads = reverse('fileupload')
 
-
     def test_register_user_correct_input(self):
         '''
         - register new user
@@ -122,7 +121,6 @@ class Test_user_login(APITestCase):
         self.assertEqual(len(response.data), 1)
         for object in response.data:
             self.assertEqual(object['owner'], 'user1')
-
 
     def tearDown(self):
         """

@@ -79,9 +79,9 @@ class Test_one_image(APITestCase):
         """
         self.client.force_authenticate(self.user1)
         data = {'img_name':'photo_user1','img_description':'photo of user1',
-                'favourite':True,'width':700,'height':500}
+                'favourite':True,'width':700,'height':500,'share_user':[]}
         url = reverse(self.url_name_one,args=(1,))
-        response = self.client.put(url,data,format='json')
+        response = self.client.put(url,data,format='multipart')
         self.assertEqual(response.status_code,status.HTTP_200_OK)
 
         #Get edited object, convert to dict and compare with inputs
@@ -92,23 +92,3 @@ class Test_one_image(APITestCase):
         edited_img = Image.open(self.test_pic_folder + '\\test.png')
         self.assertEqual(edited_img.size, (700, 500))
 
-
-
-
-
-
-
-
-
-
-"""
-data = {'name':'martin','currency':'EUR'}
-        exchange = Exchanges.objects.get(name='David')
-
-        url = reverse('exchange_id',args=(exchange.id,))
-        response = self.client.put(url,data,format='json')
-        self.assertEqual(response.status_code,status.HTTP_200_OK)
-        updated_exchange = Exchanges.objects.get(id=exchange.id)
-        #After update exchange id 1 from USD to EUR than if converting was correct amounts cant be equal
-        self.assertNotEqual(exchange.amount,updated_exchange.amount)
-        """
