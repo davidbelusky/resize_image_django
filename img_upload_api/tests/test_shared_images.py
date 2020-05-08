@@ -29,8 +29,8 @@ class SharedImagesTest(APITestCase):
         self.user1,self.user2,self.user3 = self.user_list
 
         # Folder for saving test images
-        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api\\tests', '')
-        self.test_pic_folder = current_path + '\\media\\testing_pics'
+        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api/tests', '')
+        self.test_pic_folder = current_path + '/media/testing_pics'
 
         #Create image objects with sharing
         # user1 = 1 (shared: user2,user3)
@@ -103,7 +103,11 @@ class SharedImagesTest(APITestCase):
             self.assertTrue(obj['owner'] == 'user3' or obj['owner'] == 'user2')
 
 
-
+    def tearDown(self):
+        """
+        Delete folder with testing pictures saved in 'media\testing_pics'
+        """
+        shutil.rmtree(self.test_pic_folder)
 
 
 

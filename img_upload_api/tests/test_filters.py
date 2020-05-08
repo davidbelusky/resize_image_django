@@ -35,8 +35,8 @@ class UploadsFilterTest(APITestCase):
                                               email='user2@email.com',
                                               password='Test123456')
         # Folder for saving test images
-        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api\\tests', '')
-        self.test_pic_folder = current_path + '\\media\\testing_pics'
+        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api/tests', '')
+        self.test_pic_folder = current_path + '/media/testing_pics'
 
         #user1 = 3 images, user2 = 2 images
         for upload in range(1,6):

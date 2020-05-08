@@ -77,8 +77,8 @@ class Test_user_login(APITestCase):
                                          email='user2@email.com',
                                          password='Test123456')
         # Folder for saving test images
-        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api\\tests', '')
-        self.test_pic_folder = current_path + '\\media\\testing_pics'
+        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api/tests', '')
+        self.test_pic_folder = current_path + '/media/testing_pics'
 
         # Upload 1 image for user1
         self.client.force_authenticate(self.user1)
@@ -121,15 +121,12 @@ class Test_user_login(APITestCase):
         self.assertEqual(len(response.data), 1)
         for object in response.data:
             self.assertEqual(object['owner'], 'user1')
-
+    #
     def tearDown(self):
         """
         Delete folder with testing pictures saved in 'media\testing_pics'
         """
         shutil.rmtree(self.test_pic_folder)
-
-
-
 
 
 

@@ -20,8 +20,8 @@ class Test_image_resize_upload(APITestCase):
 
         self.url = reverse('fileupload')
         #Folder for saving test images
-        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api\\tests', '')
-        self.test_pic_folder = current_path + '\\media\\testing_pics'
+        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api/tests', '')
+        self.test_pic_folder = current_path + '/media/testing_pics'
 
 
     def test_upload_image_without_size(self):
@@ -44,7 +44,7 @@ class Test_image_resize_upload(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual([response_data['width'],response_data['height']],[150,100])
         #open resized image
-        resized_img = Image.open(self.test_pic_folder + '\\test1.png')
+        resized_img = Image.open(self.test_pic_folder + '/test1.png')
         self.assertEqual(resized_img.size,(150,100))
 
     def test_upload_image_with_height(self):
@@ -68,7 +68,7 @@ class Test_image_resize_upload(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual([response_data['width'], response_data['height']], [150, 400])
         # check resized image
-        resized_img = Image.open(self.test_pic_folder + f'\\{file_name}.png')
+        resized_img = Image.open(self.test_pic_folder + f'/{file_name}.png')
         self.assertEqual(resized_img.size, (150, 400))
 
     def test_upload_image_with_width(self):
@@ -92,7 +92,7 @@ class Test_image_resize_upload(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual([response_data['width'], response_data['height']], [300, 100])
         # check resized image
-        resized_img = Image.open(self.test_pic_folder + f'\\{file_name}.png')
+        resized_img = Image.open(self.test_pic_folder + f'/{file_name}.png')
         self.assertEqual(resized_img.size, (300, 100))
 
     def test_upload_image_size_in_maxlimit(self):
@@ -119,7 +119,7 @@ class Test_image_resize_upload(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual([response_data['width'], response_data['height']], [input_width, input_height])
         # check resized image
-        resized_img = Image.open(self.test_pic_folder + f'\\{file_name}.png')
+        resized_img = Image.open(self.test_pic_folder + f'/{file_name}.png')
         self.assertEqual(resized_img.size, (input_width, input_height))
 
     def test_upload_image_size_over_maxlimit(self):
@@ -151,7 +151,7 @@ class Test_image_resize_upload(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual([response_data['width'], response_data['height']], [max_width, max_height])
         # check resized image
-        resized_img = Image.open(self.test_pic_folder + f'\\{file_name}.png')
+        resized_img = Image.open(self.test_pic_folder + f'/{file_name}.png')
         self.assertEqual(resized_img.size, (max_width, max_height))
 
     def test_name_and_ext_image_default(self):

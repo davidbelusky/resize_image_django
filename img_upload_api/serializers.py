@@ -23,7 +23,7 @@ def validate_image_input(data,context):
     share_user_list_request = request.data.getlist('share_user')
 
     if str(request.user.id) in share_user_list_request:
-        raise serializers.ValidationError(f"Owner {request.user.id} cannot be in field share_user")
+        raise serializers.ValidationError(f"Owner {request.user} cannot be in field share_user")
 
     return data
 
