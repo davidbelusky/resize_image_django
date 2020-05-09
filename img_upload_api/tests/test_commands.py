@@ -19,8 +19,8 @@ class DeleteOldImagesTest(APITestCase):
         - edit created date for each image objects. ages of img objects in days [1,5,24,40]
         - set favourite to True for objects which are old 1 and 24 days, for two remaining 5 and 40 days set favourite to False
         """
-        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api/tests', '')
-        self.test_pic_folder = current_path + '/media/testing_pics'
+        self.current_path = os.path.abspath(os.getcwd()).replace('img_upload_api/tests', '')
+        self.test_pic_folder = self.current_path + '/media/testing_pics'
 
         self.url_upload = reverse('fileupload')
         # Create user for authentication
@@ -32,7 +32,9 @@ class DeleteOldImagesTest(APITestCase):
 
         current_path = os.path.abspath(os.getcwd()).replace('img_upload_api/tests', '')
         self.test_pic_folder = current_path + '/media/testing_pics'
-
+        #if media folder doesnt exist create it
+        if not os.path.isdir(self.current_path + '/media'):
+            os.mkdir(self.current_path + '/media')
         #create folder for testing images
         if not os.path.isdir(self.test_pic_folder):
             os.mkdir(self.test_pic_folder)
