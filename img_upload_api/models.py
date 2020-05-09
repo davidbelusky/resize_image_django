@@ -8,6 +8,7 @@ def owner_directory_path(instance, filename):
     # Image upload to media/pics/owner_{owner_id}/
     return f'pics/owner_{instance.owner.id}/{filename}'
 
+
 class Images(models.Model):
     img_name = models.CharField(max_length=25,blank=True)
     img_description = models.TextField(max_length=250,blank=True)
