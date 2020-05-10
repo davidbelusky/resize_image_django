@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django_cleanup', #When deleting object it will also delete image file
     'django_filters',
     'img_upload_api',
     'rest_framework',

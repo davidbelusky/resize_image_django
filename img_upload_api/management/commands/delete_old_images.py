@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from img_upload_api.models import Images
 from datetime import timedelta
 from django.utils import timezone
+import os
 
 class Command(BaseCommand):
     help = 'Delete image objects which are older then 14 days and field favourite is set to False'
