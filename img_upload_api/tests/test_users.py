@@ -3,8 +3,9 @@ from rest_framework import status
 from django.urls import reverse
 import shutil
 import os
-
 from django.contrib.auth.models import User
+
+from .others import get_testing_media_path
 from .generate_image import generate_image_file
 
 
@@ -77,8 +78,7 @@ class Test_user_login(APITestCase):
                                          email='user2@email.com',
                                          password='Test123456')
         # Folder for saving test images
-        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api/tests', '')
-        self.test_pic_folder = current_path + '/media/testing_pics'
+        self.test_pic_folder = get_testing_media_path
 
         # Upload 1 image for user1
         self.client.force_authenticate(self.user1)

@@ -5,8 +5,9 @@ import os
 import shutil
 from .generate_image import generate_image_file
 from django.forms.models import model_to_dict
-
 from django.contrib.auth.models import User
+
+from .others import get_testing_media_path
 from ..models import Images
 from django.core.files.uploadedfile import SimpleUploadedFile
 
@@ -29,8 +30,7 @@ class SharedImagesTest(APITestCase):
         self.user1,self.user2,self.user3 = self.user_list
 
         # Folder for saving test images
-        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api/tests', '')
-        self.test_pic_folder = current_path + '/media/testing_pics'
+        self.test_pic_folder = get_testing_media_path()
 
         #Create image objects with sharing
         # user1 = 1 (shared: user2,user3)

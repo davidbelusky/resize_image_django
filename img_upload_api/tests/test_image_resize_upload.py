@@ -4,9 +4,11 @@ from django.urls import reverse
 from PIL import Image
 import os
 import shutil
-
 from django.contrib.auth.models import User
+
 from .generate_image import generate_image_file
+from .others import get_testing_media_path
+
 
 
 class Test_image_resize_upload(APITestCase):
@@ -20,8 +22,7 @@ class Test_image_resize_upload(APITestCase):
 
         self.url = reverse('fileupload')
         #Folder for saving test images
-        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api/tests', '')
-        self.test_pic_folder = current_path + '/media/testing_pics'
+        self.test_pic_folder = get_testing_media_path()
 
 
     def test_upload_image_without_size(self):

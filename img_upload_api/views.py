@@ -5,9 +5,6 @@ from rest_framework import status,permissions
 from django.contrib.auth.models import User
 import django_filters.rest_framework
 from rest_framework import filters
-from rest_framework.views import APIView
-from django.http import Http404
-
 
 from .permissions import IsOwner
 from .serializers import ImageSerializer,ImageOneSerializer,UserSerializer
@@ -73,7 +70,6 @@ class ImageOneView(generics.RetrieveUpdateDestroyAPIView):
             'request':self.request
         }
 
-
 class SharedImagesView(generics.ListAPIView):
     queryset = Images.objects.all()
     serializer_class = ImageSerializer
@@ -81,8 +77,20 @@ class SharedImagesView(generics.ListAPIView):
 
     def get_queryset(self):
         """
-        - Show only images which are shared with logged user
+        - Show images which are shared with logged user
         """
-
         shared_images = self.request.user.shared_user.all()
         return shared_images
+
+class FavouriteImagesView(generics.ListAPIView):
+    queryset = Images.objects.all()
+    serializer_class = ImageSerializer
+    permission_classes = [permissions.IsAuthenticated,IsOwner]
+
+    def get_queryset(self):
+        """
+        Show images where
+        - logged user = owner and favourite = True
+        """
+        favourite_images = Images.objects.filter(owner=self.request.user,favourite=True)
+        return favourite_images

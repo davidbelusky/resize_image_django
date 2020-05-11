@@ -5,9 +5,10 @@ import os
 from django.forms.models import model_to_dict
 from PIL import Image
 import shutil
-
 from django.contrib.auth.models import User
+
 from .generate_image import generate_image_file
+from .others import get_testing_media_path
 from ..models import Images
 
 
@@ -24,8 +25,7 @@ class Test_one_image(APITestCase):
                                          email='user2@email.com',
                                          password='Test123456')
         # Folder for saving test images
-        current_path = os.path.abspath(os.getcwd()).replace('img_upload_api/tests', '')
-        self.test_pic_folder = current_path + '/media/testing_pics'
+        self.test_pic_folder = get_testing_media_path()
 
         # Upload 1 image for user1
         self.client.force_authenticate(self.user1)
