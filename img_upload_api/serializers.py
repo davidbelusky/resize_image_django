@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Images
+from .models import Images,StyleImage
 
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import *
@@ -30,7 +30,6 @@ def validate_image_input(data,context):
 class ImageSerializer(serializers.ModelSerializer):
     img_format = serializers.ReadOnlyField()
     owner = serializers.ReadOnlyField(source='owner.username')
-
     class Meta:
         model = Images
         fields = '__all__'
@@ -94,3 +93,10 @@ class UserSerializer(serializers.ModelSerializer):
 
         user.set_password(self.validated_data['password'])
         user.save()
+
+
+class StyleImageSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    class Meta:
+        model = StyleImage
+        fields = '__all__'
