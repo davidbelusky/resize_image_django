@@ -70,3 +70,5 @@ class Transfer_Style_Image():
     img = tf.image.resize(img, new_shape)
     img = img[tf.newaxis, :]
     return img
+
+

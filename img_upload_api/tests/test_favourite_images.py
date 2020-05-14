@@ -34,11 +34,11 @@ class Test_show_favourite_images(APITestCase):
             if count == 1: favourite = True
             else: favourite = False
             data = {
+                'img_name':f'test{str(count)}',
                 'uploaded_image': img_file,
                 'favourite':favourite
             }
             if count == 2: self.client.force_authenticate(self.user2)
-
             response = self.client.post(self.url_upload, data, format='multipart')
             self.assertEqual(response.status_code,status.HTTP_201_CREATED)
 
@@ -58,9 +58,9 @@ class Test_show_favourite_images(APITestCase):
 
         response_favourite = self.client.get(self.url_favourite, format='multipart')
         self.assertEqual(response_favourite.status_code,status.HTTP_200_OK)
-        self.assertEqual(len(response_favourite.data),1)
+        self.assertEqual(len(response_favourite.data['images']),1)
         #Check if showed favourite img have set field favourite to True
-        self.assertTrue(response_favourite.data[0]['favourite'])
+        self.assertTrue(response_favourite.data['images'][0]['favourite'])
 
 
         self.client.force_authenticate(self.user2)
@@ -70,8 +70,7 @@ class Test_show_favourite_images(APITestCase):
         self.assertFalse(response.data[0]['favourite'])
         response_favourite = self.client.get(self.url_favourite, format='multipart')
         self.assertEqual(response_favourite.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response_favourite.data), 0)
-
+        self.assertEqual(len(response_favourite.data['images']), 0)
 
     def tearDown(self):
         """

@@ -40,9 +40,9 @@ class SharedImagesTest(APITestCase):
             self.client.force_authenticate(user)
             img_file = generate_image_file(f'test{count}')
             #print(1)
-            if count == 1: data = {'uploaded_image': img_file,'share_user':[self.user2.id,self.user3.id]}
-            elif count == 2: data = {'uploaded_image': img_file,'share_user':self.user1.id}
-            elif count == 3: data = {'uploaded_image': img_file}
+            if count == 1: data = {'img_name':f'test{str(count)}','uploaded_image': img_file,'share_user':[self.user2.id,self.user3.id]}
+            elif count == 2: data = {'img_name':f'test{str(count)}','uploaded_image': img_file,'share_user':self.user1.id}
+            elif count == 3: data = {'img_name':f'test{str(count)}','uploaded_image': img_file}
 
             response = self.client.post(self.url_uploads, data, format='multipart')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -73,7 +73,7 @@ class SharedImagesTest(APITestCase):
             #Get shared images
             response = self.client.get(self.url_shared, format='json')
             #every user have one shared image
-            self.assertEqual(len(response.data), 1)
+            self.assertEqual(len(response.data['images']), 1)
 
             #check owner of shared image
             #check if logged user is in list of shared for showed image
@@ -89,7 +89,7 @@ class SharedImagesTest(APITestCase):
 
     def test_update(self):
         self.client.force_authenticate(self.user3)
-        data = {'share_user': [1]}
+        data = {'img_name':'test_edit','share_user': [1]}
         url = reverse('fileupload_one',args=(3,))
         response = self.client.put(url, data, format='multipart')
         self.assertEqual(response.status_code,status.HTTP_200_OK)

@@ -46,6 +46,7 @@ class UploadsFilterTest(APITestCase):
                 self.client.force_authenticate(self.user2)
             img_file = generate_image_file(f'test{upload}')
             data = {
+                'img_name':f'test{str(upload)}',
                 'uploaded_image': img_file
             }
             response = self.client.post(self.url, data, format='multipart')

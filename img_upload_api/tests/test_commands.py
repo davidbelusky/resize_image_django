@@ -48,9 +48,9 @@ class DeleteOldImagesTest(APITestCase):
             image.save(image_path)
             #For objects which are old 1 or 25 days set favourite=True, remain two objects (5 and 40 old days) set to False
             if days_from_created == 1 or days_from_created == 25:
-                img_obj = Images.objects.create(owner=user,uploaded_image=image_path,favourite=True)
+                img_obj = Images.objects.create(img_name=f'test{str(count)}',owner=user,uploaded_image=image_path,favourite=True)
             else:
-                img_obj = Images.objects.create(owner=user, uploaded_image=image_path, favourite=False)
+                img_obj = Images.objects.create(img_name=f'test{str(count)}',owner=user, uploaded_image=image_path, favourite=False)
             #Edit created_date
             calculated_date = timezone.now() - timedelta(days=days_from_created)
             img_obj.created_date = calculated_date

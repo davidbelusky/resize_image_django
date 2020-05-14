@@ -37,6 +37,7 @@ class Test_image_resize_upload(APITestCase):
         img_file = generate_image_file('test1')
 
         data = {
+            'img_name':'test1',
             'uploaded_image': img_file
         }
 
@@ -60,6 +61,7 @@ class Test_image_resize_upload(APITestCase):
         img_file = generate_image_file(file_name)
 
         data = {
+            'img_name': 'test2',
             'uploaded_image': img_file,
             'height':400
         }
@@ -84,6 +86,7 @@ class Test_image_resize_upload(APITestCase):
         img_file = generate_image_file(file_name)
 
         data = {
+            'img_name': 'test3',
             'uploaded_image': img_file,
             'width':300
         }
@@ -110,6 +113,7 @@ class Test_image_resize_upload(APITestCase):
         img_file = generate_image_file(file_name)
 
         data = {
+            'img_name': 'test4',
             'uploaded_image': img_file,
             'width': input_width,
             'height': input_height
@@ -142,6 +146,7 @@ class Test_image_resize_upload(APITestCase):
         img_file = generate_image_file(file_name)
 
         data = {
+            'img_name': 'test5',
             'uploaded_image': img_file,
             'width': input_width,
             'height': input_height
@@ -166,6 +171,7 @@ class Test_image_resize_upload(APITestCase):
         img_file = generate_image_file(file_name)
 
         data = {
+            'img_name':'test6',
             'uploaded_image':img_file
         }
         response = self.client.post(self.url,data,format='multipart')

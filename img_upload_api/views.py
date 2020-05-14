@@ -5,10 +5,9 @@ from rest_framework import status,permissions
 from django.contrib.auth.models import User
 import django_filters.rest_framework
 from rest_framework import filters
-from .tests.generate_image import generate_image_file
 
 from .permissions import IsOwner
-from .serializers import ImageSerializer,ImageOneSerializer,UserSerializer,StyleImageSerializer
+from .serializers import ImageSerializer,ImageOneSerializer,UserSerializer,StyleImageSerializer,StyleImageOneSerializer
 from .models import Images,StyleImage
 
 class RegisterUser(generics.CreateAPIView):
@@ -29,7 +28,7 @@ class ImageUploadView(generics.ListCreateAPIView):
             'created_date':['exact','lte','gte']
         }
     search_fields = ['img_name',]
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         """
@@ -51,16 +50,29 @@ class ImageUploadView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         """
-        Filter only images for logged owner
+        Filter only images for logged user
         """
         user_images = Images.objects.filter(owner=self.request.user)
         return user_images
+
+class ImageOneView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Images.objects.all()
+    serializer_class = ImageOneSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+
+    def get_serializer_context(self):
+        """
+        - send request to serializer as context
+        """
+        return {
+            'request':self.request
+        }
 
 class StyleImageView(generics.ListCreateAPIView):
     parser_classes = (MultiPartParser, JSONParser,)
     queryset = StyleImage
     serializer_class = StyleImageSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         """
@@ -90,18 +102,17 @@ class StyleImageView(generics.ListCreateAPIView):
         user_images = StyleImage.objects.filter(owner=self.request.user)
         return user_images
 
-class ImageOneView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Images.objects.all()
-    serializer_class = ImageOneSerializer
+class StyleImageViewOne(generics.RetrieveUpdateDestroyAPIView):
+    queryset = StyleImage.objects.all()
+    serializer_class = StyleImageOneSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get_serializer_context(self):
         """
-        - Send context with request to ImageOneSerializer
-        - ImageOneSerializer get from request path to 'uploaded_image' and create absolute path of image
+        - send request to serializer as context
         """
         return {
-            'request':self.request
+            'request': self.request
         }
 
 class SharedImagesView(generics.ListAPIView):
@@ -109,23 +120,34 @@ class SharedImagesView(generics.ListAPIView):
     serializer_class = ImageSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
+    def get(self, request, *args, **kwargs):
         """
-        - Show images which are shared with logged user
+        Get shared images and styled images for logged user
         """
+        #get basic shared images
         shared_images = self.request.user.shared_user.all()
-        return shared_images
+        serializer_images = ImageSerializer(shared_images,many=True,context={'request':self.request})
+        #get styled share images
+        shared_styled_images = self.request.user.shared_user_styled.all()
+        serializer_styled_images = StyleImageSerializer(shared_styled_images,many=True,context={'request':self.request})
+        #all shared images
+        shared_images = {'images':serializer_images.data,'styled_images':serializer_styled_images.data}
+        return Response(shared_images,status.HTTP_200_OK)
 
 class FavouriteImagesView(generics.ListAPIView):
-    queryset = Images.objects.all()
-    serializer_class = ImageSerializer
-    permission_classes = [permissions.IsAuthenticated,IsOwner]
+    permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
+    def get(self, request, *args, **kwargs):
         """
-        Show images where
+        Show basic images and styled images where
         - logged user = owner and favourite = True
         """
-        favourite_images = Images.objects.filter(owner=self.request.user,favourite=True)
-        return favourite_images
-
+        #Styled images
+        styled_images = StyleImage.objects.filter(owner=self.request.user,favourite=True)
+        serializer_style = StyleImageSerializer(styled_images,many=True,context={'request':self.request})
+        #Basic images
+        images = Images.objects.filter(owner=self.request.user,favourite=True)
+        serializer_images = ImageSerializer(images,many=True,context={'request':self.request})
+        #styled + basic images
+        favourite_images = {'images':serializer_images.data,'styled_images':serializer_style.data}
+        return Response(favourite_images,status.HTTP_200_OK)

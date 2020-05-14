@@ -84,6 +84,7 @@ class Test_user_login(APITestCase):
         self.client.force_authenticate(self.user1)
         img_file = generate_image_file('test')
         data = {
+            'img_name':'test',
             'uploaded_image': img_file
         }
 
@@ -94,6 +95,7 @@ class Test_user_login(APITestCase):
         for upload in range(2):
             img_file = generate_image_file(f'test{upload}')
             data = {
+                'img_name': f'test{str(upload)}',
                 'uploaded_image': img_file
             }
             response = self.client.post(self.url, data, format='multipart')
@@ -121,7 +123,7 @@ class Test_user_login(APITestCase):
         self.assertEqual(len(response.data), 1)
         for object in response.data:
             self.assertEqual(object['owner'], 'user1')
-    #
+
     def tearDown(self):
         """
         Delete folder with testing pictures saved in 'media\testing_pics'

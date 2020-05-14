@@ -31,6 +31,7 @@ class Test_one_image(APITestCase):
         self.client.force_authenticate(self.user1)
         img_file = generate_image_file('test')
         data = {
+            'img_name':'test',
             'uploaded_image': img_file
         }
         response = self.client.post(self.url_upload, data, format='multipart')
@@ -40,6 +41,7 @@ class Test_one_image(APITestCase):
         for upload in range(2):
             img_file = generate_image_file(f'test{upload}')
             data = {
+                'img_name':f'test{str(upload)}',
                 'uploaded_image': img_file
             }
             response = self.client.post(self.url_upload, data, format='multipart')
