@@ -39,7 +39,7 @@ class Test_styled_images(APITestCase):
         img_file = generate_image_file('test1')
         orig_img = Images.objects.get(id=1)
         data = {
-            'styled_img_name':'test_img1',
+            'img_name':'test_img1',
             'styled_image': img_file,
             'original_image':orig_img.id
         }
@@ -57,7 +57,7 @@ class Test_styled_images(APITestCase):
         img_file = generate_image_file('test2')
         orig_img = Images.objects.get(id=1)
         data = {
-            'styled_img_name': 'test_img2',
+            'img_name': 'test_img2',
             'styled_image': img_file,
             'original_image': orig_img.id
         }

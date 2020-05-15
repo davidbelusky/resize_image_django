@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 #from .ai_models.image_style_transfer import Transfer_Style_Image
 from .others.resize_image import Resize_image
 
-
 #Paths for saving orig images,style images and styled images
 def owner_directory_path(instance, filename):
     # Image upload to media/pics/owner_{owner_id}/
@@ -16,7 +15,7 @@ def owner_directory_path_styles(instance, filename):
     return f'pics/owner_{instance.owner.id}/styled_images/{filename}'
 
 class Images(models.Model):
-    img_name = models.CharField(max_length=25,blank=False,unique=True)
+    img_name = models.CharField(max_length=25,blank=False,null=False)
     img_description = models.TextField(max_length=250,blank=True)
     img_format = models.CharField(max_length=5) #ex.(jpg,png)
 
@@ -55,7 +54,7 @@ class Images(models.Model):
 
 
 class StyleImage(models.Model):
-    styled_img_name = models.CharField(max_length=25,blank=False,unique=True)
+    img_name = models.CharField(max_length=25,blank=False,null=False)
     if settings.TESTING:
         styled_image = models.ImageField(blank=False, null=False, upload_to='testing_pics/styled_images')
     else:
@@ -64,10 +63,14 @@ class StyleImage(models.Model):
     img_format = models.CharField(max_length=5) #ex.(jpg,png)
 
     created_date = models.DateTimeField(auto_now_add=True)
-    original_image = models.ForeignKey(Images, on_delete=models.CASCADE)
+    original_image = models.ForeignKey(Images,null=True ,on_delete=models.SET_NULL)
     favourite = models.BooleanField(default=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    share_user_styled = models.ManyToManyField(User,related_name='shared_user_styled',blank=True,null=True)
+    share_user = models.ManyToManyField(User,related_name='shared_user_styled',blank=True,null=True)
+
+    def __str__(self):
+        #ex. "owner: david, img_name: first_image"
+        return f'owner: {self.owner}, img_name: {self.img_name}'
 
     def save(self, *args, **kwargs):
         """

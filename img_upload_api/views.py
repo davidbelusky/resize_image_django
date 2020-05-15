@@ -71,13 +71,13 @@ class StyleImageView(generics.ListCreateAPIView):
     filter_backends = [filters.SearchFilter, django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = {
         'id': ['exact'],
-        'styled_img_name': ['iexact'],
+        'img_name': ['iexact'],
         'img_description': ['iexact'],
         'img_format': ['iexact'],
         'favourite': ['exact'],
         'created_date': ['exact', 'lte', 'gte']
     }
-    search_fields = ['styled_img_name', ]
+    search_fields = ['img_name', ]
 
     def create(self, request, *args, **kwargs):
         data = request.data

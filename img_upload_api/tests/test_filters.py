@@ -3,10 +3,10 @@ from rest_framework import status
 from django.urls import reverse
 import os
 import shutil
+from PIL import Image
 from django.contrib.auth.models import User
 
-from .others import generate_image_file
-from .others import get_testing_media_path
+from .others import generate_image_file,get_testing_media_path,create_testing_folder
 from ..models import Images
 
 def filter_generate(**kwargs):
@@ -27,7 +27,8 @@ def filter_generate(**kwargs):
 
 class ImagesFilterTest(APITestCase):
     def setUp(self):
-        self.url = reverse('fileupload')
+        self.url_images = reverse('fileupload')
+        self.url_styleimages = reverse('styled_images')
         self.user1 = User.objects.create_user(username='user1',
                                               email='user1@email.com',
                                               password='Test123456')
@@ -35,24 +36,23 @@ class ImagesFilterTest(APITestCase):
         self.user2 = User.objects.create_user(username='user2',
                                               email='user2@email.com',
                                               password='Test123456')
-        # Folder for saving test images
+        #Folder for saving test images
         self.test_pic_folder = get_testing_media_path()
-
-        #user1 = 3 images, user2 = 2 images
-        for upload in range(1,6):
-            if upload <= 3:
-                self.client.force_authenticate(self.user1)
+        image = Image.new('RGBA', size=(150, 100), color=(155, 0, 0))
+        #Create folder for testing images
+        create_testing_folder()
+        for count in range(1,6):
+            img_name = f'test_filter_img{count}.png'
+            image_path = f'{self.test_pic_folder}/{img_name}'
+            image.save(image_path)
+            if count <=3:
+                user = self.user1
             else:
-                self.client.force_authenticate(self.user2)
-            img_file = generate_image_file(f'test{upload}')
-            data = {
-                'img_name':f'test{str(upload)}',
-                'uploaded_image': img_file
-            }
-            response = self.client.post(self.url, data, format='multipart')
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+                user = self.user2
+            Images.objects.create(img_name=f'test{str(count)}',owner=user,uploaded_image=image_path)
+        self.assertEqual(len(Images.objects.all()),5)
 
-    def test_filter_search_user1(self):
+    def test_filter_images_search(self):
         '''
         searching applied only for 'img_name' field (case insensitive,startswith)
         - check user1 count of object (3)
@@ -62,13 +62,13 @@ class ImagesFilterTest(APITestCase):
         - try to filter img objects of not logged user
         '''
         self.client.force_authenticate(self.user1)
-        response = self.client.get(self.url,format='json')
+        response = self.client.get(self.url_images,format='json')
         self.assertEqual(len(response.data),3)
 
         #Search is case insensitive
         #Filter img_name startwith 'Test1'
         filters = filter_generate(search='Test1')
-        url_filter = self.url + filters
+        url_filter = self.url_images + filters
         response = self.client.get(url_filter,format='json')
         #1 img with name 'Test1'
         self.assertEqual(len(response.data),1)
@@ -76,7 +76,7 @@ class ImagesFilterTest(APITestCase):
 
         #Filter img_name startwith 'test'
         filters = filter_generate(search='test')
-        url_filter = self.url + filters
+        url_filter = self.url_images + filters
         response = self.client.get(url_filter,format='json')
         #3 images start with img name 'test'
         self.assertEqual(len(response.data), 3)
@@ -87,13 +87,13 @@ class ImagesFilterTest(APITestCase):
 
         #Find non exist img_name
         filters = filter_generate(search='abcd')
-        url_filter = self.url + filters
+        url_filter = self.url_images + filters
         response = self.client.get(url_filter, format='json')
         self.assertEqual(len(response.data),0)
 
         #Get user2 image object (authenticated user1)
         filters = filter_generate(search='test4')
-        url_filter = self.url + filters
+        url_filter = self.url_images + filters
         response = self.client.get(url_filter, format='json')
         self.assertEqual(len(response.data),0)
 
@@ -105,7 +105,7 @@ class ImagesFilterTest(APITestCase):
 
         #Get all user2 objects startswith 'test'
         filters = filter_generate(search='test')
-        url_filter = self.url + filters
+        url_filter = self.url_images + filters
         response = self.client.get(url_filter, format='json')
         self.assertEqual(len(response.data), 2)
         for img_object in response.data:
