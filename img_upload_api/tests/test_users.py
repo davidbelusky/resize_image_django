@@ -6,13 +6,13 @@ import os
 from django.contrib.auth.models import User
 
 from .others import get_testing_media_path
-from .generate_image import generate_image_file
+from .others import generate_image_file
 
 
 class Test_register_user(APITestCase):
     def setUp(self):
         self.url = reverse('register_user')
-        self.url_uploads = reverse('fileupload')
+        self.url_images = reverse('fileupload')
 
     def test_register_user_correct_input(self):
         '''
@@ -34,7 +34,7 @@ class Test_register_user(APITestCase):
         self.assertEqual(correct_response_data_keys,list(response.data.keys()))
 
         self.client.login(username='david', password='Test123456')
-        response_get = self.client.get(self.url_uploads,format='json')
+        response_get = self.client.get(self.url_images,format='json')
         #Successfuly authenticate
         self.assertEqual(response_get.status_code,status.HTTP_200_OK)
         # 0 created objects for user 'david'

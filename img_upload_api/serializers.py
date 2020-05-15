@@ -67,7 +67,6 @@ class ImageSerializer(serializers.ModelSerializer):
     """
     - img_format: fill automatically get from uploaded image
     - owner: logged user
-    - img_name: max_length=25 ,unique
     """
     img_format = serializers.ReadOnlyField()
     owner = serializers.ReadOnlyField(source='owner.username')
@@ -81,27 +80,16 @@ class ImageSerializer(serializers.ModelSerializer):
 
 class ImageOneSerializer(serializers.ModelSerializer):
     """
-    - img_format: fill automatically get from uploaded image
-    - owner: logged user
-    - uploaded_image if method.PUT then read only
+    uploaded_image and img_format cannot be edited
     """
-    img_format = serializers.ReadOnlyField()
     owner = serializers.ReadOnlyField(source='owner.username')
-    uploaded_image = serializers.SerializerMethodField('get_image_url')
     class Meta:
         model = Images
         fields = '__all__'
+        read_only_fields = ['uploaded_image','img_format']
 
     def validate(self, data):
         return validate_image_input(data, self.context)
-
-    def get_image_url(self, obj):
-        """
-        Return absolute path to image
-        """
-        request = self.context.get('request')
-        image_url = obj.uploaded_image.url
-        return request.build_absolute_uri(image_url)
 
 class StyleImageSerializer(serializers.ModelSerializer):
     """
@@ -111,6 +99,7 @@ class StyleImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = StyleImage
         fields = '__all__'
+        read_only_fields = ['img_format']
 
     def validate_share_user_styled(self,data):
         """
@@ -121,14 +110,24 @@ class StyleImageSerializer(serializers.ModelSerializer):
         shared_users = [user_id.id for user_id in data]
         if request.user.id in shared_users:
             raise serializers.ValidationError(f"Owner {request.user} cannot be in field share_user")
+        return data
+
+    def validate_original_image(self, data):
+        """
+        - logged user must be owner of selected 'original_image'
+        """
+        orig_img_owner = data.owner
+        request = self.context['request']
+        if orig_img_owner != request.user:
+            raise serializers.ValidationError(f'Owner of selected original_image is {orig_img_owner}.Logged user must be owner of selected original image')
         return data
 
 class StyleImageOneSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
-    styled_image = serializers.SerializerMethodField('get_image_url')
     class Meta:
         model = StyleImage
         fields = '__all__'
+        read_only_fields = ['styled_image', 'original_image','img_format']
 
     def validate_share_user_styled(self,data):
         """
@@ -140,11 +139,3 @@ class StyleImageOneSerializer(serializers.ModelSerializer):
         if request.user.id in shared_users:
             raise serializers.ValidationError(f"Owner {request.user} cannot be in field share_user")
         return data
-
-    def get_image_url(self, obj):
-        """
-        Return absolute path to image
-        """
-        request = self.context.get('request')
-        image_url = obj.styled_image.url
-        return request.build_absolute_uri(image_url)

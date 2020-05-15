@@ -6,7 +6,7 @@ import shutil
 
 from django.contrib.auth.models import User
 from ..models import Images
-from .generate_image import generate_image_file
+from .others import generate_image_file
 from .others import get_testing_media_path
 
 class Test_styled_images(APITestCase):
@@ -23,7 +23,7 @@ class Test_styled_images(APITestCase):
         self.client.force_authenticate(self.user)
 
         self.url_styled = reverse('styled_images')
-        self.url_uploads = reverse('fileupload')
+        self.url_images = reverse('fileupload')
         #Folder for saving test images
         self.test_pic_folder = get_testing_media_path()
         img_file = generate_image_file('test_original_img')
@@ -31,7 +31,7 @@ class Test_styled_images(APITestCase):
             'img_name':'test_original_image',
             'uploaded_image':img_file
         }
-        response = self.client.post(self.url_uploads, data, format='multipart')
+        response = self.client.post(self.url_images, data, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 

@@ -3,7 +3,7 @@ from rest_framework import status
 from django.urls import reverse
 import os
 import shutil
-from .generate_image import generate_image_file
+from .others import generate_image_file
 from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
 
@@ -18,7 +18,7 @@ class SharedImagesTest(APITestCase):
         - Create 1 img object for every user with sharing ({user1:[user2,user3],user2:[user1],user3:None})
 
         """
-        self.url_uploads = reverse('fileupload')
+        self.url_images = reverse('fileupload')
         self.url_shared = reverse('shared_img')
         self.user_list = []
         #Create 3 users (user1,2,3)
@@ -44,7 +44,7 @@ class SharedImagesTest(APITestCase):
             elif count == 2: data = {'img_name':f'test{str(count)}','uploaded_image': img_file,'share_user':self.user1.id}
             elif count == 3: data = {'img_name':f'test{str(count)}','uploaded_image': img_file}
 
-            response = self.client.post(self.url_uploads, data, format='multipart')
+            response = self.client.post(self.url_images, data, format='multipart')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
@@ -52,7 +52,7 @@ class SharedImagesTest(APITestCase):
         '''
         Loop throught user list (3x user)
         - user have one image
-        'uploads':
+        'images':
             - check if logged user is owner of image
             - check count of shared users for specific image
         'shared':
@@ -62,7 +62,7 @@ class SharedImagesTest(APITestCase):
         '''
         for user in self.user_list:
             self.client.force_authenticate(user)
-            response = self.client.get(self.url_uploads, format='json')
+            response = self.client.get(self.url_images, format='json')
             self.assertEqual(len(response.data), 1)
             self.assertEqual(response.data[0]['owner'], user.username)
             if user.username == 'user1': shared_user = 2

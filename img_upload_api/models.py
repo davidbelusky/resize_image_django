@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 
-#from .ml_models.image_style_transfer import Transfer_Style_Image
+#from .ai_models.image_style_transfer import Transfer_Style_Image
 from .others.resize_image import Resize_image
 
 
@@ -12,13 +12,14 @@ def owner_directory_path(instance, filename):
     return f'pics/owner_{instance.owner.id}/{filename}'
 
 def owner_directory_path_styles(instance, filename):
-    # Image upload to media/pics/owner_{owner_id}/styles/
+    # Styled image upload to media/pics/owner_{owner_id}/styles/
     return f'pics/owner_{instance.owner.id}/styled_images/{filename}'
 
 class Images(models.Model):
     img_name = models.CharField(max_length=25,blank=False,unique=True)
     img_description = models.TextField(max_length=250,blank=True)
     img_format = models.CharField(max_length=5) #ex.(jpg,png)
+
     created_date = models.DateTimeField(auto_now_add=True)
     favourite = models.BooleanField(default=False)
     #If testing run save tested pics to 'testing_pics/'
@@ -59,6 +60,10 @@ class StyleImage(models.Model):
         styled_image = models.ImageField(blank=False, null=False, upload_to='testing_pics/styled_images')
     else:
         styled_image = models.ImageField(blank=False,null=False,upload_to=owner_directory_path_styles)
+    img_description = models.TextField(max_length=250,blank=True)
+    img_format = models.CharField(max_length=5) #ex.(jpg,png)
+
+    created_date = models.DateTimeField(auto_now_add=True)
     original_image = models.ForeignKey(Images, on_delete=models.CASCADE)
     favourite = models.BooleanField(default=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -66,8 +71,10 @@ class StyleImage(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        - stylize original image with uploaded style and save styled imaged to DB
+        - stylize original image with uploaded style
+        - save stylized image
         """
+        self.img_format = str(self.styled_image).split('.')[-1]
         super().save(*args, **kwargs)
 
         original_img_path = self.original_image.uploaded_image.path

@@ -4,7 +4,7 @@ from django.urls import reverse
 import shutil
 
 from django.contrib.auth.models import User
-from .generate_image import generate_image_file
+from .others import generate_image_file
 from .others import get_testing_media_path
 
 class Test_show_favourite_images(APITestCase):

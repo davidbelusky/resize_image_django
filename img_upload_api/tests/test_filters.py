@@ -5,7 +5,7 @@ import os
 import shutil
 from django.contrib.auth.models import User
 
-from .generate_image import generate_image_file
+from .others import generate_image_file
 from .others import get_testing_media_path
 from ..models import Images
 
@@ -25,7 +25,7 @@ def filter_generate(**kwargs):
 
     return final_filter
 
-class UploadsFilterTest(APITestCase):
+class ImagesFilterTest(APITestCase):
     def setUp(self):
         self.url = reverse('fileupload')
         self.user1 = User.objects.create_user(username='user1',
