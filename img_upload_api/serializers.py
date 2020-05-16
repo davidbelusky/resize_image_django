@@ -3,7 +3,7 @@ from django.contrib.auth.password_validation import *
 
 from django.contrib.auth.models import User
 from .models import Images,StyleImage
-from .validators import ImageValidators,StyleImageValidators
+from .validators import ImageValidators,StyleImageValidators,GeneralValidators
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -57,6 +57,9 @@ class ImageSerializer(serializers.ModelSerializer):
     def validate(self, data):
         return ImageValidators.validate_image_input(data,self.context)
 
+    def validate_img_name(self,data):
+        return GeneralValidators.unique_image_name(data,self.context)
+
 class ImageOneSerializer(serializers.ModelSerializer):
     """
     uploaded_image and img_format cannot be edited
@@ -70,6 +73,9 @@ class ImageOneSerializer(serializers.ModelSerializer):
     def validate(self, data):
         return ImageValidators.validate_image_input(data, self.context)
 
+    def validate_img_name(self,data):
+        return GeneralValidators.unique_image_one_name(data,self.context)
+
 class StyleImageSerializer(serializers.ModelSerializer):
     """
     owner: logged user
@@ -80,10 +86,15 @@ class StyleImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['img_format']
 
+    def validate_img_name(self,data):
+        return GeneralValidators.unique_image_name(data,self.context)
+
     def validate_share_user(self,data):
         return StyleImageValidators.validate_share_user_styled_image(data,self.context)
 
     def validate_original_image(self, data):
+        if data == None:
+            raise serializers.ValidationError('Please input original image for stylizing')
         return StyleImageValidators.validate_owner_original_image(data,self.context)
 
 class StyleImageOneSerializer(serializers.ModelSerializer):
@@ -98,3 +109,6 @@ class StyleImageOneSerializer(serializers.ModelSerializer):
 
     def validate_share_user_styled(self,data):
         return StyleImageValidators.validate_share_user_styled_image(data,self.context)
+
+    def validate_img_name(self,data):
+        return GeneralValidators.unique_image_one_name(data,self.context)

@@ -52,7 +52,6 @@ class Images(models.Model):
         #Replace original img with resized img
         resized_img.save(self.uploaded_image.path)
 
-
 class StyleImage(models.Model):
     img_name = models.CharField(max_length=25,blank=False,null=False)
     if settings.TESTING:

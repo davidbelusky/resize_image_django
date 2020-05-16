@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Images
+from .models import Images,StyleImage
 
 
 class ImageValidators():
@@ -10,7 +10,6 @@ class ImageValidators():
         - if width or height are not filled then set them to default 0
         - width and height must be >= then 0
         - owner cannot be in share users list
-        - img_name must be unique for logged user
         """
         request = context['request']
 
@@ -23,13 +22,6 @@ class ImageValidators():
         share_user_list_request = request.data.getlist('share_user')
         if str(request.user.id) in share_user_list_request:
             raise serializers.ValidationError(f"Owner {request.user} cannot be in field share_user")
-
-        request = context['request']
-        image_objects = Images.objects.filter(owner=request.user)
-        img_names = [obj.img_name for obj in image_objects]
-        if data['img_name'] in img_names:
-            raise serializers.ValidationError(f'img_name: {data["img_name"]} already exist for user {request.user}')
-
         return data
 
 class StyleImageValidators():
@@ -52,9 +44,47 @@ class StyleImageValidators():
         """
         orig_img_owner = data.owner
         request = context['request']
-        print(orig_img_owner)
-        print(request.user)
         if orig_img_owner != request.user:
             raise serializers.ValidationError(
                 f'Owner of selected original_image is {orig_img_owner}.Logged user must be owner of selected original image')
         return data
+
+class GeneralValidators():
+    @staticmethod
+    def unique_image_one_name(img_name_input,context):
+        """"
+        - img_name must be unique for logged user
+        """
+        request = context['request']
+        pk = context['pk']
+        img_type = context['img_type']
+
+        # unique validator for img_name based on logged user
+        if img_type == 'styled':
+            image_objects = StyleImage.objects.filter(owner=request.user)
+        else:
+            image_objects = Images.objects.filter(owner=request.user)
+        # create list of img names without id which is already editing
+        img_names = [obj.img_name for obj in image_objects if pk != obj.id]
+        # check if inputted img_name exist in other image objects for logged user
+        if img_name_input in img_names:
+            raise serializers.ValidationError(f'img_name: {img_name_input} already exist for user {request.user}')
+        return img_name_input
+
+    @staticmethod
+    def unique_image_name(img_name_input,context):
+        """
+        - img_name must be unique for logged user
+        """
+        request = context['request']
+        img_type = context['img_type']
+        # unique validator for img_name based on logged user
+        if img_type == 'styled':
+            image_objects = StyleImage.objects.filter(owner=request.user)
+        else:
+            image_objects = Images.objects.filter(owner=request.user)
+        # create list of img names without id which is already editing
+        img_names = [obj.img_name for obj in image_objects]
+        if img_name_input in img_names:
+            raise serializers.ValidationError(f'img_name: {img_name_input} already exist for user {request.user}')
+        return img_name_input

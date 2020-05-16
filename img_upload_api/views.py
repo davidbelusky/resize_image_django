@@ -32,8 +32,8 @@ class ImageUploadView(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        serializer = ImageSerializer(data=data,context={'request':request})
-
+        serializer = ImageSerializer(data=data,context={'request':request,
+                                                        'img_type':'basic'})
         if serializer.is_valid():
             serializer.save(owner=self.request.user)
             img_absolute_path = request.build_absolute_uri(serializer.data['uploaded_image'])
@@ -60,7 +60,9 @@ class ImageOneView(generics.RetrieveUpdateDestroyAPIView):
         - send request to serializer as context
         """
         return {
-            'request':self.request
+            'request':self.request,
+            'pk':self.kwargs['pk'],
+            'img_type':'basic'
         }
 
 class StyleImageView(generics.ListCreateAPIView):
@@ -81,11 +83,10 @@ class StyleImageView(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        serializer = StyleImageSerializer(data=data,context={'request':request})
-
+        serializer = StyleImageSerializer(data=data,context={'request':request,
+                                                            'img_type':'styled'})
         if serializer.is_valid():
             serializer.save(owner=self.request.user)
-            #Show absolute path of uploaded_image after being created
             response_data = serializer.data
             return Response(response_data,status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
@@ -100,7 +101,6 @@ class StyleImageView(generics.ListCreateAPIView):
 class StyleImageViewOne(generics.RetrieveUpdateDestroyAPIView):
     queryset = StyleImage.objects.all()
     serializer_class = StyleImageOneSerializer
-
     permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get_serializer_context(self):
@@ -108,7 +108,9 @@ class StyleImageViewOne(generics.RetrieveUpdateDestroyAPIView):
         - send request to serializer as context
         """
         return {
-            'request': self.request
+            'request': self.request,
+            'pk':self.kwargs['pk'],
+            'img_type':'styled'
         }
 
 class SharedImagesView(generics.ListAPIView):
