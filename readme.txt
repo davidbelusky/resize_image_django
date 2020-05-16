@@ -1,1 +1,0 @@
-check null for field original_image
