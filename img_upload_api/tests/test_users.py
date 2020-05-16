@@ -78,7 +78,7 @@ class Test_user_login(APITestCase):
                                          email='user2@email.com',
                                          password='Test123456')
         # Folder for saving test images
-        self.test_pic_folder = get_testing_media_path
+        self.test_pic_folder = get_testing_media_path()
 
         # Upload 1 image for user1
         self.client.force_authenticate(self.user1)
