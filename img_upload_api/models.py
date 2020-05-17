@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 
-#from .ai_models.image_style_transfer import Transfer_Style_Image
+from .ai_models.image_style_transfer import Transfer_Style_Image
 from .others.resize_image import Resize_image
 
 #Paths for saving orig images,style images and styled images
@@ -82,8 +82,8 @@ class StyleImage(models.Model):
         original_img_path = self.original_image.uploaded_image.path
         style_img_path = self.styled_image.path
 
-       #styled_image = Transfer_Style_Image().stylizing_image(original_img_path, style_img_path)
-        #styled_image.save(self.styled_image.path)
+        styled_image = Transfer_Style_Image().stylizing_image(original_img_path, style_img_path)
+        styled_image.save(self.styled_image.path)
 
 
 

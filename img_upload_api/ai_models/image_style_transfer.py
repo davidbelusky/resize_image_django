@@ -7,8 +7,10 @@ import os
 
 class Transfer_Style_Image():
   def __init__(self):
+    tf.enable_eager_execution()
+    #Below command needed only for windows
     #set directory for saving model (default tensorflow directory cannot be accessed)
-    os.environ['TFHUB_CACHE_DIR'] = '/home/user/workspace/tf_cache'
+    #os.environ['TFHUB_CACHE_DIR'] = '/home/usr/workspace/tf_cache'
 
   def stylizing_image(self,content_path,style_path):
     """
