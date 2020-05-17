@@ -73,17 +73,24 @@ class StyleImage(models.Model):
 
     def save(self, *args, **kwargs):
         """
+        - before stylizing image check if 'pk' = None. If pk = None it means this image is posting first time so apply stylizing for this image
+          if 'pk' != None mean image is already in DB and this action editing image fields. Dont apply stylizing for image
         - stylize original image with uploaded style
         - save stylized image
         """
+        pk = self.pk
+
         self.img_format = str(self.styled_image).split('.')[-1]
         super().save(*args, **kwargs)
 
         original_img_path = self.original_image.uploaded_image.path
         style_img_path = self.styled_image.path
 
-        styled_image = Transfer_Style_Image().stylizing_image(original_img_path, style_img_path)
-        styled_image.save(self.styled_image.path)
+        #If pk is None means posting of new image,use AI for style image
+        #If pk is not None means editing already existed image, dont use AI for style image
+        if pk == None:
+            styled_image = Transfer_Style_Image().stylizing_image(original_img_path, style_img_path)
+            styled_image.save(self.styled_image.path)
 
 
 
