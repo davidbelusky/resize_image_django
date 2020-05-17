@@ -85,12 +85,12 @@ class StyleImage(models.Model):
 
         original_img_path = self.original_image.uploaded_image.path
         style_img_path = self.styled_image.path
-
-        #If pk is None means posting of new image,use AI for style image
-        #If pk is not None means editing already existed image, dont use AI for style image
-        if pk == None:
-            styled_image = Transfer_Style_Image().stylizing_image(original_img_path, style_img_path)
-            styled_image.save(self.styled_image.path)
+        if not settings.TESTING:
+            #If pk is None means posting of new image,use AI for style image
+            #If pk is not None means editing already existed image, dont use AI for style image
+            if pk == None:
+                styled_image = Transfer_Style_Image().stylizing_image(original_img_path, style_img_path)
+                styled_image.save(self.styled_image.path)
 
 
 
