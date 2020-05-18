@@ -16,34 +16,95 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Images',
+            name="Images",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('img_name', models.CharField(max_length=25)),
-                ('img_description', models.TextField(blank=True, max_length=250)),
-                ('img_format', models.CharField(max_length=5)),
-                ('created_date', models.DateTimeField(auto_now_add=True)),
-                ('favourite', models.BooleanField(default=False)),
-                ('uploaded_image', models.ImageField(upload_to=img_upload_api.models.owner_directory_path)),
-                ('width', models.IntegerField(default=0)),
-                ('height', models.IntegerField(default=0)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('share_user', models.ManyToManyField(blank=True, null=True, related_name='shared_user', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("img_name", models.CharField(max_length=25)),
+                ("img_description", models.TextField(blank=True, max_length=250)),
+                ("img_format", models.CharField(max_length=5)),
+                ("created_date", models.DateTimeField(auto_now_add=True)),
+                ("favourite", models.BooleanField(default=False)),
+                (
+                    "uploaded_image",
+                    models.ImageField(
+                        upload_to=img_upload_api.models.owner_directory_path
+                    ),
+                ),
+                ("width", models.IntegerField(default=0)),
+                ("height", models.IntegerField(default=0)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "share_user",
+                    models.ManyToManyField(
+                        blank=True,
+                        null=True,
+                        related_name="shared_user",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='StyleImage',
+            name="StyleImage",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('img_name', models.CharField(max_length=25)),
-                ('styled_image', models.ImageField(upload_to=img_upload_api.models.owner_directory_path_styles)),
-                ('img_description', models.TextField(blank=True, max_length=250)),
-                ('img_format', models.CharField(max_length=5)),
-                ('created_date', models.DateTimeField(auto_now_add=True)),
-                ('favourite', models.BooleanField(default=False)),
-                ('original_image', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='img_upload_api.Images')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('share_user', models.ManyToManyField(blank=True, null=True, related_name='shared_user_styled', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("img_name", models.CharField(max_length=25)),
+                (
+                    "styled_image",
+                    models.ImageField(
+                        upload_to=img_upload_api.models.owner_directory_path_styles
+                    ),
+                ),
+                ("img_description", models.TextField(blank=True, max_length=250)),
+                ("img_format", models.CharField(max_length=5)),
+                ("created_date", models.DateTimeField(auto_now_add=True)),
+                ("favourite", models.BooleanField(default=False)),
+                (
+                    "original_image",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="img_upload_api.Images",
+                    ),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "share_user",
+                    models.ManyToManyField(
+                        blank=True,
+                        null=True,
+                        related_name="shared_user_styled",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]
