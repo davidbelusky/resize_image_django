@@ -298,6 +298,20 @@ Same fields as during posting new image only field 'uploaded_image' is excluded.
 
 Use AI style transfer to style selected original image, owner of selected original image must be logged user. User can upload own style image which will be apply to stylizing original image.
 
+#### Image stylizing example:
+**Original image:**
+
+![Original_image](https://raw.githubusercontent.com/davidbelusky/resize_image_django/master/styled_image_example/img.jpg)
+
+**Style image:**
+
+![Style image](https://github.com/davidbelusky/resize_image_django/blob/master/styled_image_example/style.jpeg)
+
+**Styled image:**
+
+![Styled image](https://github.com/davidbelusky/resize_image_django/blob/master/styled_image_example/styled_image.jpeg)
+
+
 #### Fields:
 
 **_owner_** - username of user who upload styled image. **read_only=True**
