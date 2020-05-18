@@ -12,7 +12,9 @@ class Transfer_Style_Image():
       # set directory for saving model (default tensorflow directory cannot be accessed)
       os.environ['TFHUB_CACHE_DIR'] = '/home/user/workspace/tf_cache'
     else:
-      tf.enable_eager_execution()
+    	pass
+    	#Tensorflow version 1.14 must use below command
+       #tf.enable_eager_execution()
 
 
   def stylizing_image(self,content_path,style_path):
