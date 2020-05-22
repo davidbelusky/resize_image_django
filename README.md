@@ -51,6 +51,33 @@ Command 'delete_old_images'  delete all images and styled images which are older
 
     example - ```0 0 * * * /home/user/Desktop/env/bin/python3 /home/user/Desktop/resize_image_django/manage.py delete_old_images```
 
+#### Docker tutorial:
+
+1. Edit 'DATABASES' in django project settings.py as below (mysite/settings.py):
+
+   ```python
+   DATABASES = {
+       'default': {
+           'ENGINE': 'django.db.backends.postgresql',
+           'NAME': 'resize_db',
+           'USER': 'user',
+           'PASSWORD': 'pass',
+           'HOST': 'db',
+           'PORT': 5432,
+       }
+   }
+   ```
+
+2.  In django project folder run command below to build Docker image:
+
+   ```docker-compose build```
+
+3.  After build docker image, we can run builded image:
+
+   ```docker-compose up```
+
+4.  Default at localhost:8000 we can find our api
+
 ## Endpoints
 
 ### Register new user:
