@@ -59,24 +59,22 @@ Command 'delete_old_images'  delete all images and styled images which are older
    DATABASES = {
        'default': {
            'ENGINE': 'django.db.backends.postgresql',
-           'NAME': 'resize_db',
-           'USER': 'user',
-           'PASSWORD': 'pass',
+           'NAME': 'django',
+           'USER': 'david',
+           'PASSWORD': 'dav',
            'HOST': 'db',
            'PORT': 5432,
        }
    }
    ```
 
-2.  In django project folder run command below to build Docker image:
+2.  In django project folder run command below to build docker image:
 
    ```docker-compose build```
 
 3.  After build docker image, we can run builded image:
 
    ```docker-compose up```
-
-4.  Default at localhost:8000 we can find our api
 
 ## Endpoints
 
