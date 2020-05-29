@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["username", "email", "password", "password2"]
 
-    def validate_password(self, value):
+    def validate_password(self, password):
         """
         Validate password:
         - min length = 5
@@ -22,28 +22,14 @@ class UserSerializer(serializers.ModelSerializer):
         - password cannot obtain only numbers
         """
         try:
-            validate_password(value)
+            validate_password(password)
         except ValidationError as exc:
             raise serializers.ValidationError(str(exc))
+        
+        if password != self.initial_data['password2']:
+            raise serializers.ValidationError('Passwords not match')    
+            
         return value
-
-    def save(self):
-        """
-        Check if password == password2
-        """
-        user = User(
-            username=self.validated_data["username"], email=self.validated_data["email"]
-        )
-
-        password = self.validated_data["password"]
-        password2 = self.validated_data["password2"]
-
-        if password != password2:
-            raise serializers.ValidationError({"error": "Password must match"})
-
-        user.set_password(self.validated_data["password"])
-        user.save()
-
 
 class ImageSerializer(serializers.ModelSerializer):
     """
