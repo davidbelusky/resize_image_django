@@ -20,6 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
         - min length = 5
         - password cannot be common
         - password cannot obtain only numbers
+        - password and password2 input must matching
         """
         try:
             validate_password(password)
