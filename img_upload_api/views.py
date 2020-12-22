@@ -5,6 +5,7 @@ from rest_framework import status, permissions
 from django.contrib.auth.models import User
 import django_filters.rest_framework
 from rest_framework import filters
+from rest_framework.views import APIView
 
 from .permissions import IsOwner
 from .serializers import (
@@ -13,14 +14,35 @@ from .serializers import (
     UserSerializer,
     StyleImageSerializer,
     StyleImageOneSerializer,
+    DemoStylerSerializer,
 )
-from .models import Images, StyleImage
+from .models import Images, StyleImage, DemoStyler
 
 
 class RegisterUser(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+
+class DemoStylerView(generics.CreateAPIView):
+    serializer_class = DemoStylerSerializer
+    queryset = DemoStyler.objects.all()
+    def create(self, request, *args, **kwargs):
+        serializer = DemoStylerSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            img_absolute_path = request.build_absolute_uri(
+                serializer.data["original_image"]
+            )
+            styled_img_absolute_path = request.build_absolute_uri(
+                serializer.data["style_image"]
+            )
+            # Show absolute path of uploaded_image after being created
+            response_data = serializer.data
+            response_data["original_image"] = img_absolute_path
+            response_data["style_image"] = styled_img_absolute_path
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ImageUploadView(generics.ListCreateAPIView):
     parser_classes = (

@@ -14,4 +14,5 @@ urlpatterns = [
     path("favourites/", views.FavouriteImagesView.as_view(), name="favourite_img"),
     path("api-auth/register/", views.RegisterUser.as_view(), name="register_user"),
     path("api-auth/", include("rest_framework.urls")),
+    path("demo_styler/", views.DemoStylerView.as_view(), name="demo_styler")
 ]

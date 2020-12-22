@@ -35,7 +35,7 @@ MIDDLEWARE = [
 ]
 
 
-ROOT_URLCONF = "mysite.urls"
+ROOT_URLCONF = "urls"
 
 TEMPLATES = [
     {
@@ -53,16 +53,16 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "mysite.wsgi.application"
+WSGI_APPLICATION = "wsgi.application"
 
 DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("DATABASE_NAME", "image"),
-            "USER": os.environ.get("DATABASE_USER", "image"),
-            "PASSWORD": os.environ.get("DATABASE_PASSWORD", "image"),
-            "HOST": os.environ.get("DATABASE_HOST", "db"),
-            "PORT": os.environ.get("DATABASE_PORT", 5432),
+            "NAME": os.environ.get("DB_DATABASE", "image"),
+            "USER": os.environ.get("DB_USER", "image"),
+            "PASSWORD": os.environ.get("DB_PASSWORD", "image"),
+            "HOST": os.environ.get("DB_HOST", "db"),
+            "PORT": os.environ.get("DB_PORT", 5432),
         }
     }
 

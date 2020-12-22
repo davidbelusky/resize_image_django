@@ -110,3 +110,16 @@ class StyleImage(models.Model):
                     original_img_path, style_img_path
                 )
                 styled_image.save(self.styled_image.path)
+
+class DemoStyler(models.Model):
+    original_image = models.ImageField(blank=False, null=False, upload_to="demo/")
+    style_image = models.ImageField(blank=False, null=False, upload_to="demo/")
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        original_img_path = self.original_image.path
+        style_img_path = self.style_image.path
+        styled_image = Transfer_Style_Image().stylizing_image(
+            original_img_path, style_img_path
+        )
+        styled_image.save(self.style_image.path)

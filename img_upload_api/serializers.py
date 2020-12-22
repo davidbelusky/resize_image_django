@@ -2,17 +2,26 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import *
 
 from django.contrib.auth.models import User
-from .models import Images, StyleImage
+from .models import Images, StyleImage, DemoStyler
 from .validators import ImageValidators, StyleImageValidators, GeneralValidators
 
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(style={"input_type": "password"}, write_only=True)
-    password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
 
     class Meta:
         model = User
-        fields = ["username", "email", "password", "password2"]
+        fields = ["username", "email", "password"]
+
+    def create(self, validated_data):
+        user = User(
+            username=validated_data['username'],
+            email=validated_data['email']
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
 
     def validate_password(self, password):
         """
@@ -26,11 +35,16 @@ class UserSerializer(serializers.ModelSerializer):
             validate_password(password)
         except ValidationError as exc:
             raise serializers.ValidationError(str(exc))
-        
-        if password != self.initial_data['password2']:
-            raise serializers.ValidationError('Passwords not match')    
-            
-        return value
+
+        return password
+
+class DemoStylerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DemoStyler
+        fields = "__all__"
+        read_only_fields = ["result_image"]
+
+
 
 class ImageSerializer(serializers.ModelSerializer):
     """
