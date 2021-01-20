@@ -1,42 +1,52 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import *
+from django.core import exceptions as django_exceptions
+from djoser.serializers import UserCreateSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from django.contrib.auth.models import User
-from .models import Images, StyleImage, DemoStyler
+from .models import Images, StyleImage, DemoStyler, User
 from .validators import ImageValidators, StyleImageValidators, GeneralValidators
 
 
-class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(style={"input_type": "password"}, write_only=True)
+class CreateUserSerializer(serializers.Serializer):
+    email = serializers.EmailField()
 
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "email", "password"]
+        fields = ("id", "email", "is_active", "token")
+        read_only_fields = ("id", "token")
 
-    def create(self, validated_data):
-        user = User(
-            username=validated_data['username'],
-            email=validated_data['email']
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
+class PasswordResetSerializer(serializers.Serializer):
+    new_password = serializers.CharField(style={"input_type": "password"})
 
-
-    def validate_password(self, password):
-        """
-        Validate password:
-        - min length = 5
-        - password cannot be common
-        - password cannot obtain only numbers
-        - password and password2 input must matching
-        """
+    def validate(self, attrs):
         try:
-            validate_password(password)
-        except ValidationError as exc:
-            raise serializers.ValidationError(str(exc))
+            validate_password(attrs["new_password"])
+        except django_exceptions.ValidationError as e:
+            raise serializers.ValidationError({"new_password": list(e.messages)})
+        return attrs
 
-        return password
+class UserRegisterSerializer(UserCreateSerializer):
+    password = serializers.CharField(style={"input_type": "password"}, write_only=True)
+
+    class Meta(UserCreateSerializer.Meta):
+        model = User
+        fields = ["email", "password"]
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Add custom fields to JWT
+    Default JWT obtain only user_id
+    """
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["user_details"] = {"user_id": user.id, "email": user.email}
+        return token
+
+# OTHER SERIALIZERS
 
 class DemoStylerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,7 +54,10 @@ class DemoStylerSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["result_image"]
 
-
+class ActiveUsersListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id","email")
 
 class ImageSerializer(serializers.ModelSerializer):
     """

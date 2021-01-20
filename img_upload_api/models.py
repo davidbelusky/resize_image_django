@@ -1,9 +1,11 @@
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import AbstractUser
 
 from .ai_models.image_style_transfer import Transfer_Style_Image
 from .others.resize_image import Resize_image
+from django.utils.translation import ugettext_lazy as _
 
 # Paths for saving orig images,style images and styled images
 def owner_directory_path(instance, filename):
@@ -16,9 +18,56 @@ def owner_directory_path_styles(instance, filename):
     return f"pics/owner_{instance.owner.id}/styled_images/{filename}"
 
 
+
+class UserManager(BaseUserManager):
+    """Define a model manager for User model with no username field."""
+
+    use_in_migrations = True
+
+    def _create_user(self, email, password, **extra_fields):
+        """Create and save a User with the given email and password."""
+        if not email:
+            raise ValueError("The given email must be set")
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email, password=None, **extra_fields):
+        """Create and save a regular User with the given email and password."""
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        extra_fields.setdefault("is_active", False)
+
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        """Create and save a SuperUser with the given email and password."""
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
+
+        return self._create_user(email, password, **extra_fields)
+
+class User(AbstractUser):
+    username = None
+    email = models.EmailField(_("email address"), unique=True)
+
+    can_manage_users = models.BooleanField(default=False)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()
+
 class Images(models.Model):
     img_name = models.CharField(max_length=25, blank=False, null=False)
-    img_description = models.TextField(max_length=250, blank=True)
+    img_description = models.TextField(max_length=50, blank=True)
     img_format = models.CharField(max_length=5)  # ex.(jpg,png)
 
     created_date = models.DateTimeField(auto_now_add=True)
@@ -117,9 +166,22 @@ class DemoStyler(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+        # Resize demo images to max
+        height, width, resized_img = Resize_image.resizing(
+            self.original_image, 400,400
+        )
+        height, width, resized_style_img = Resize_image.resizing(
+            self.style_image, 400,400
+        )
+
+        resized_img.save(self.original_image.path)
+        resized_style_img.save(self.style_image.path)
+
         original_img_path = self.original_image.path
         style_img_path = self.style_image.path
+
         styled_image = Transfer_Style_Image().stylizing_image(
             original_img_path, style_img_path
         )
         styled_image.save(self.style_image.path)
+

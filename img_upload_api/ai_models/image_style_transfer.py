@@ -63,7 +63,7 @@ class Transfer_Style_Image:
     Load and resize images
     - max allowed dimensions = 512  (restricted for faster converting)
     """
-        max_dim = 512
+        max_dim = 400
         img = tf.io.read_file(path_to_img)
         # Convert img to matrix
         img = tf.image.decode_image(img, channels=3)

@@ -2,31 +2,113 @@ from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from django.contrib.auth.models import User
 import django_filters.rest_framework
 from rest_framework import filters
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from img_upload_api.others.helpers import token_validate
+from img_upload_api.models import User
+from rest_framework.permissions import IsAuthenticated
 
 from .permissions import IsOwner
 from .serializers import (
     ImageSerializer,
     ImageOneSerializer,
-    UserSerializer,
     StyleImageSerializer,
     StyleImageOneSerializer,
     DemoStylerSerializer,
+    MyTokenObtainPairSerializer,
+    PasswordResetSerializer,
+    ActiveUsersListSerializer,
 )
 from .models import Images, StyleImage, DemoStyler
 
 
-class RegisterUser(generics.CreateAPIView):
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    """
+    Change default generating JWT tokens (add user email to token)
+    """
+    serializer_class = MyTokenObtainPairSerializer
+
+
+
+class UserPasswordResetView(APIView):
+    """
+    - Send link to mail for set new password
+    - Input new password {"new_password":"Password123"}
+    - Password was successfully changed
+    - Logout user after restart password (delete auth token)
+    - Link for changing password can be use only once
+    """
+
+    permission_classes = []
+
+
+    def post(self, request, uid, token):
+        # Validate token
+        user = token_validate(uid, token)
+        if not user:
+            return Response({"error": "Invalid token"}, 400)
+
+        serializer = PasswordResetSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user.set_password(serializer.data["new_password"])
+        user.last_login = timezone.now()
+        user.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class UserActivateView(APIView):
+    """
+    - Activate user
+    """
+    permission_classes = []
+
+    def post(self, request, uid, token):
+        # Validate token
+        user = token_validate(uid, token)
+        if not user:
+            return Response({"error": "Invalid token"}, 400)
+        user.is_active = True
+        user.last_login = timezone.now()
+        user.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class CheckUserActivate(APIView):
+    permission_classes = []
+    authentication_classes = []
+
+    def post(self,request):
+        email = request.data['email']
+        user = get_object_or_404(User, email=email)
+
+        return Response({"user_is_active":user.is_active})
+
+class ActiveUsersListView(generics.ListAPIView):
+    authentication_classes = [JWTAuthentication, ]
+    permission_classes = [IsAuthenticated, ]
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = ActiveUsersListSerializer
+
+    def get_queryset(self):
+        """
+        Filter only active users
+        """
+        active_users = User.objects.filter().exclude(email=self.request.user).exclude(is_active=False)
+        return active_users
 
 
 class DemoStylerView(generics.CreateAPIView):
     serializer_class = DemoStylerSerializer
     queryset = DemoStyler.objects.all()
+    permission_classes = []
+    authentication_classes = []
     def create(self, request, *args, **kwargs):
         serializer = DemoStylerSerializer(data=request.data)
         if serializer.is_valid():
@@ -44,6 +126,15 @@ class DemoStylerView(generics.CreateAPIView):
             return Response(response_data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class DemoStylerJob(generics.RetrieveAPIView):
+    permission_classes = []
+    authentication_classes = []
+    queryset = DemoStyler.objects.all()
+    serializer_class = DemoStylerSerializer
+    lookup_field = 'pk'
+
+
 class ImageUploadView(generics.ListCreateAPIView):
     parser_classes = (
         MultiPartParser,
@@ -51,7 +142,8 @@ class ImageUploadView(generics.ListCreateAPIView):
     )
     queryset = Images.objects.all()
     serializer_class = ImageSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication,]
+    permission_classes = [IsAuthenticated,]
     filter_backends = [
         filters.SearchFilter,
         django_filters.rest_framework.DjangoFilterBackend,

@@ -10,7 +10,7 @@ class Resize_image:
         width = user input width to resize
 
         If width or height = 0 then set original parameter of size
-        Max allowed width and height = 1920x1080 (if input is higher than max allowed automatically set to max allowed size)
+        Max allowed width and height = 400x400 (if input is higher than max allowed automatically set to max allowed size)
 
         return: corrected height,width and resized image
         """
@@ -23,11 +23,16 @@ class Resize_image:
         if height == 0:
             height = img_height
 
-        # If width > 1920 then set to max allowed width. If height > 1080 then automatically set to max allowed height
-        if width > 1920:
-            width = 1920
-        if height > 1080:
-            height = 1080
+        # max allowed width and height is 400
+        if width > 400:
+            width = 400
+        if height > 400:
+            height = 400
+
+        if img_width < width:
+            width = img_width
+        if img_height < height:
+            height = img_height
         # Set output size
         output_size = (width, height)
 
