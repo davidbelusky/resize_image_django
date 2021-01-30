@@ -66,7 +66,7 @@ class ImageSerializer(serializers.ModelSerializer):
     """
 
     img_format = serializers.ReadOnlyField()
-    owner = serializers.ReadOnlyField(source="owner.username")
+    owner = serializers.ReadOnlyField(source="owner.email")
     img_name = serializers.CharField(max_length=25, allow_blank=False, allow_null=False)
 
     class Meta:
@@ -85,7 +85,7 @@ class ImageOneSerializer(serializers.ModelSerializer):
     uploaded_image and img_format cannot be edited
     """
 
-    owner = serializers.ReadOnlyField(source="owner.username")
+    owner = serializers.ReadOnlyField(source="owner.email")
 
     class Meta:
         model = Images
@@ -104,7 +104,7 @@ class StyleImageSerializer(serializers.ModelSerializer):
     owner: logged user
     """
 
-    owner = serializers.ReadOnlyField(source="owner.username")
+    owner = serializers.ReadOnlyField(source="owner.email")
 
     class Meta:
         model = StyleImage
@@ -130,7 +130,7 @@ class StyleImageOneSerializer(serializers.ModelSerializer):
     - owner: logged user
     """
 
-    owner = serializers.ReadOnlyField(source="owner.username")
+    owner = serializers.ReadOnlyField(source="owner.email")
 
     class Meta:
         model = StyleImage

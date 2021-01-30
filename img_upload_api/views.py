@@ -180,13 +180,14 @@ class ImageUploadView(generics.ListCreateAPIView):
         """
         Filter only images for logged user
         """
-        user_images = Images.objects.filter(owner=self.request.user)
+        user_images = Images.objects.filter(owner=self.request.user).order_by("-favourite")
         return user_images
 
 
 class ImageOneView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Images.objects.all()
     serializer_class = ImageOneSerializer
+    authentication_classes = [JWTAuthentication,]
     permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get_serializer_context(self):
@@ -204,6 +205,7 @@ class StyleImageView(generics.ListCreateAPIView):
     queryset = StyleImage
     serializer_class = StyleImageSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication,]
     filter_backends = [
         filters.SearchFilter,
         django_filters.rest_framework.DjangoFilterBackend,
@@ -235,7 +237,7 @@ class StyleImageView(generics.ListCreateAPIView):
         """
         Filter only images for logged owner
         """
-        user_images = StyleImage.objects.filter(owner=self.request.user)
+        user_images = StyleImage.objects.filter(owner=self.request.user).order_by("-favourite")
         return user_images
 
 
@@ -243,6 +245,7 @@ class StyleImageViewOne(generics.RetrieveUpdateDestroyAPIView):
     queryset = StyleImage.objects.all()
     serializer_class = StyleImageOneSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwner]
+    authentication_classes = [JWTAuthentication,]
 
     def get_serializer_context(self):
         """
@@ -255,6 +258,7 @@ class SharedImagesView(generics.ListAPIView):
     queryset = Images.objects.all()
     serializer_class = ImageSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication,]
 
     def get(self, request, *args, **kwargs):
         """
@@ -280,6 +284,7 @@ class SharedImagesView(generics.ListAPIView):
 
 class FavouriteImagesView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication,]
 
     def get(self, request, *args, **kwargs):
         """
